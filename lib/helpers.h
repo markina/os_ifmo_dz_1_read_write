@@ -3,8 +3,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
 
-extern size_t read_(int fileDesc, void *buf, size_t count);
-extern size_t write_(int fileDesc, const void *buf, size_t count);
+extern ssize_t read_(int fileDesc, void *buf, size_t count);
+extern ssize_t write_(int fileDesc, const void *buf, size_t count);
+extern ssize_t read_until(int fileDesc, void * buf, size_t count, char delimiter);
 
 #endif
