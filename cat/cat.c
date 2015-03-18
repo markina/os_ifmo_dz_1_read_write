@@ -11,7 +11,7 @@
 int main(int argc, char *argv[]) {
     
     char * buf = malloc(SIZE_BUF * sizeof(char)); 
-    size_t readBytes;
+    ssize_t readBytes;
     while((readBytes = read_(STDIN_FILENO, buf, SIZE_BUF * sizeof(char))) > 0) {
     	
     	if(write_(STDOUT_FILENO, buf, readBytes) == -1) {
