@@ -36,9 +36,8 @@ ssize_t write_(int fileDesc, const void *buf, size_t count) {
 ssize_t read_until(int fileDesc, void * buf, size_t count, char delimiter) {
     ssize_t retRead;
     ssize_t shift = 0;
-    size_t STEP = 1;
 
-    while((retRead = read(fileDesc, buf + shift * sizeof(char), STEP/*count*/)) > 0) {
+    while((retRead = read(fileDesc, buf + shift * sizeof(char), count)) > 0) {
         for (ssize_t i = shift; i < shift + retRead; i++) {
             if(((char *)buf)[i] == delimiter) {
                 return shift + retRead;
