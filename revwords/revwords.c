@@ -6,33 +6,55 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#define SIZE_BUF 4000
+#define SIZE_BUF 8192
 char DELIMITER = ' ';
 
 int main(int argc, char *argv[]) {
     
-    char * buf = malloc(SIZE_BUF * sizeof(char)); 
+    char * buf = malloc(SIZE_BUF * sizeof( char)); 
     ssize_t readBytes;
-    while((readBytes = read_until(STDIN_FILENO, buf, SIZE_BUF * sizeof(char), DELIMITER)) > 0) {
-    	for (ssize_t i = 0; i < readBytes; i++) {
-            if(((char *)buf)[i] == DELIMITER) {
-                for(ssize_t j = 0; j < i/2; j++) {
-                    char t = buf[i - 1 - j];
-                    buf[i - 1 - j] = buf[j];
+    ssize_t shift = 0;
+    while((readBytes = read_until(STDIN_FILENO, buf + (shift * sizeof(char)), SIZE_BUF - shift, DELIMITER)) > 0) {
+        ssize_t firstLetterInCurrentWord = 0;
+    	for (ssize_t i = 0; i < readBytes + shift; i++) {
+            
+            if(buf[i] == DELIMITER) {
+                for(ssize_t j = firstLetterInCurrentWord, x = i - 1; j < (i+firstLetterInCurrentWord)/2; x--, j++) {
+                    char t = buf[x];
+                    buf[x] = buf[j];
                     buf[j] = t;
                 }
-                if(write(STDOUT_FILENO, buf, i) == -1) {
-                    perror("Error while writing");
-                } 
-                continue;       
+                firstLetterInCurrentWord = i+1;
             }
         }
-    	
+
+        if(write_(STDOUT_FILENO, buf, firstLetterInCurrentWord) == -1) {
+            perror("Error while writing");
+        }
+
+        for(ssize_t i = 0, j = firstLetterInCurrentWord; j < readBytes + shift; i++, j++) {
+            buf[i] = buf[j];
+        }
+        
+        shift += readBytes - firstLetterInCurrentWord;
+    }
+   
+    if(readBytes == 0) {
+        for(ssize_t j = 0, i = shift - 1; j < shift/2; j++, i--) {
+            char t = buf[j];
+            buf[j] = buf[i];
+            buf[i] = t;
+        }
+        
+        if(write_(STDOUT_FILENO, buf, shift) == -1) {
+            perror("Error while writing");
+        }
     }
 
     if(readBytes == -1) {
     	perror("Error while reading");
     }
+
     free(buf);
 	return 0;
 }
