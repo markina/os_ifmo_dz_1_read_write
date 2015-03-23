@@ -5,59 +5,55 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <string.h>
 
 #define SIZE_BUF 8192
 char DELIMITER = ' ';
 
 int main(int argc, char *argv[]) {
     
-    char * buf = malloc(SIZE_BUF * sizeof( char)); 
+    char buf[SIZE_BUF]; 
     ssize_t readBytes;
-    ssize_t reversed = 0;
-    ssize_t lost = 0;
-    while((readBytes = read_until(STDIN_FILENO, buf + lost * sizeof(char), SIZE_BUF - lost, DELIMITER)) > 0) {
-
-    	for (ssize_t i = 0; i < readBytes + lost; i++) {
+    ssize_t shift = 0;
+    while((readBytes = read_until(STDIN_FILENO, buf + (shift * sizeof(char)), SIZE_BUF - shift, DELIMITER)) > 0) {
+        ssize_t firstLetterInCurrentWord = 0;
+        for (ssize_t i = 0; i < readBytes + shift; i++) {
             
             if(buf[i] == DELIMITER) {
-                for(ssize_t j = reversed; j < (i+reversed)/2; j++) {
-                    char t = buf[i - 1 - (j - reversed)];
-                    buf[i - 1 - (j - reversed)] = buf[j];
+                for(ssize_t j = firstLetterInCurrentWord, x = i - 1; j < (i+firstLetterInCurrentWord)/2; x--, j++) {
+                    char t = buf[x];
+                    buf[x] = buf[j];
                     buf[j] = t;
                 }
-                
-                if(write_(STDOUT_FILENO, buf + (reversed * sizeof(char)), i - reversed + 1) == -1) {
-                    perror("Error while writing");
-                }
-                reversed = i+1;
+                firstLetterInCurrentWord = i+1;
             }
         }
 
-        for(ssize_t i = 0, j = reversed; j < SIZE_BUF && j != 0; i++, j++) {
-            buf[i] = buf[j];
+        if(write_(STDOUT_FILENO, buf, firstLetterInCurrentWord) == -1) {
+            perror("Error while writing");
         }
+
+        memmove(buf, buf + firstLetterInCurrentWord, readBytes + shift - firstLetterInCurrentWord);
         
-    	lost = readBytes - reversed;
-        reversed = 0;
+        shift += readBytes - firstLetterInCurrentWord;
     }
    
     if(readBytes == 0) {
-        for(ssize_t j = 0, i = lost - 1; j < lost/2; j++, i--) {
+        for(ssize_t j = 0, i = shift - 1; j < shift/2; j++, i--) {
             char t = buf[j];
             buf[j] = buf[i];
             buf[i] = t;
         }
         
-        if(write_(STDOUT_FILENO, buf, lost) == -1) {
+        if(write_(STDOUT_FILENO, buf, shift) == -1) {
             perror("Error while writing");
         }
-        
     }
 
     if(readBytes == -1) {
-    	perror("Error while reading");
+        perror("Error while reading");
     }
 
-    free(buf);
-	return 0;
+    
+    return 0;
 }
