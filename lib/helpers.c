@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 ssize_t read_(int fileDesc, void *buf, size_t count) {
 	ssize_t retRead;
@@ -51,4 +52,25 @@ ssize_t read_until(int fileDesc, void * buf, size_t count, char delimiter) {
     } else {
         return shift;
     }        
+}
+
+int spawn(const char * file, char * const argv []) {
+    pid_t retFork = fork();
+    if(retFork == -1) {
+        perror("Fork failed");
+    }
+    if(retFork) {
+        int status;            
+        pid_t retWait = waitpid (retFork , &status, 0);
+        if(retWait == -1) {
+            perror("Wait failed");
+        }
+        return status;
+    } else {
+        int retExec = execvp(file, argv);
+        if(retExec == -1) {
+            perror("Error while execing");
+            exit(-1);
+        }
+    }
 }
