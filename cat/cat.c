@@ -10,18 +10,18 @@
 
 int main(int argc, char *argv[]) {
     
-    char * buf = malloc(SIZE_BUF * sizeof(char)); 
+    char buf[SIZE_BUF]; 
     ssize_t readBytes;
     while((readBytes = read_(STDIN_FILENO, buf, SIZE_BUF * sizeof(char))) > 0) {
-        
-        if(write_(STDOUT_FILENO, buf, readBytes) == -1) {
-            perror("Error while writing");
-        }
+    	
+    	if(write_(STDOUT_FILENO, buf, readBytes) == -1) {
+    		perror("Error while writing");
+    	}
     }
 
     if(readBytes == -1) {
-        perror("Error while reading");
+    	perror("Error while reading");
     }
-    free(buf);
-    return 0;
+    
+	return 0;
 }

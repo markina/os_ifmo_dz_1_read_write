@@ -38,8 +38,8 @@ ssize_t itoa(int n, char * buf) {
 
 int main(int argc, char *argv[]) {
 
-    char * buf = malloc(SIZE_BUF * sizeof( char)); 
-    char * bufout = malloc(SIZE_BUF * 2 * sizeof( char)); 
+    char buf[SIZE_BUF]; 
+    char bufout[SIZE_BUF * 2]; 
 
     ssize_t readBytes;
     ssize_t shift = 0;
@@ -67,9 +67,7 @@ int main(int argc, char *argv[]) {
         }
         itBufout = 0;
 
-        for(ssize_t i = 0, j = firstLetterInCurrentWord; j < readBytes + shift; i++, j++) {
-            buf[i] = buf[j];
-        }
+        memmove(buf, buf + firstLetterInCurrentWord, readBytes + shift - firstLetterInCurrentWord);
         
         shift += readBytes - firstLetterInCurrentWord;
         
@@ -91,7 +89,5 @@ int main(int argc, char *argv[]) {
     	perror("Error while reading");
     }
 
-    free(buf);
-    free(bufout);
 	return 0;
 }

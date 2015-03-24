@@ -5,18 +5,19 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <string.h>
 
 #define SIZE_BUF 8192
 char DELIMITER = ' ';
 
 int main(int argc, char *argv[]) {
     
-    char * buf = malloc(SIZE_BUF * sizeof( char)); 
+    char buf[SIZE_BUF]; 
     ssize_t readBytes;
     ssize_t shift = 0;
     while((readBytes = read_until(STDIN_FILENO, buf + (shift * sizeof(char)), SIZE_BUF - shift, DELIMITER)) > 0) {
         ssize_t firstLetterInCurrentWord = 0;
-    	for (ssize_t i = 0; i < readBytes + shift; i++) {
+        for (ssize_t i = 0; i < readBytes + shift; i++) {
             
             if(buf[i] == DELIMITER) {
                 for(ssize_t j = firstLetterInCurrentWord, x = i - 1; j < (i+firstLetterInCurrentWord)/2; x--, j++) {
@@ -32,9 +33,7 @@ int main(int argc, char *argv[]) {
             perror("Error while writing");
         }
 
-        for(ssize_t i = 0, j = firstLetterInCurrentWord; j < readBytes + shift; i++, j++) {
-            buf[i] = buf[j];
-        }
+        memmove(buf, buf + firstLetterInCurrentWord, readBytes + shift - firstLetterInCurrentWord);
         
         shift += readBytes - firstLetterInCurrentWord;
     }
@@ -52,9 +51,9 @@ int main(int argc, char *argv[]) {
     }
 
     if(readBytes == -1) {
-    	perror("Error while reading");
+        perror("Error while reading");
     }
 
-    free(buf);
-	return 0;
+    
+    return 0;
 }
