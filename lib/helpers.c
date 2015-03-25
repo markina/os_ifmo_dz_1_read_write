@@ -55,6 +55,7 @@ ssize_t read_until(int fileDesc, void * buf, size_t count, char delimiter) {
 }
 
 int spawn(const char * file, char * const argv []) {
+
     pid_t retFork = fork();
     if(retFork == -1) {
         perror("Fork failed");
