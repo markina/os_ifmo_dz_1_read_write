@@ -4,9 +4,11 @@ all:
 	cd revwords && $(MAKE)
 	cd lenwords && $(MAKE)
 	cd filter && $(MAKE)
+	cd bufcat && $(MAKE)
 rm:
 	cd lib && $(MAKE) rm
 	cd cat && $(MAKE) rm
 	cd revwords && $(MAKE) rm
 	cd lenwords && $(MAKE) rm
 	cd filter && $(MAKE) rm
+	cd bufcat && $(MAKE) rm
