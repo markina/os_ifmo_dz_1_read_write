@@ -56,6 +56,7 @@ size_t buf_size(buf_t *buf){
 
 ssize_t buf_fill(int fileDesc, buf_t *buf, size_t required){
 	check(buf);
+
 	ssize_t retRead;
     while((retRead = read(fileDesc, buf->buffer + buf->size * sizeof(char), buf->capacity - buf->size)) > 0) {
     	buf->size += retRead;

@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <string.h>
 
 #define SIZE_BUF 8192
 
@@ -17,6 +18,9 @@ int main(int argc, char *argv[]) {
         if(buf_flush(STDOUT_FILENO, buf, 1) == -1) {
             perror("Error while flushing:");        
         }
+    }
+    if(buf_flush(STDOUT_FILENO, buf, buf_size(buf)) == -1) {
+        perror("Error while flushing:");        
     }
     if(retFill == -1) {
         perror("Error while filling:");
