@@ -8,14 +8,14 @@
 #include <errno.h>
 #include <string.h>
 
-// void check(buf_t *buf) {
-// 	if(buf == NULL || buf->buffer == NULL) {
-// 		buf_free(buf);
-// 		#ifdef DEBUG
-// 		abort();
-// 		#endif
-// 	} 
-// }
+void check(buf_t *buf) {
+	#ifdef DEBUG
+	if(buf == NULL || buf->buffer == NULL) {
+		buf_free(buf);
+		abort();
+	} 
+	#endif
+}
 
 buf_t *buf_new(size_t capacity){
 	buf_t * buf = malloc(sizeof(buf_t));
@@ -45,18 +45,17 @@ void buf_free(buf_t *buf){
 }
 
 size_t buf_capacity(buf_t *buf){
-//	check(buf);
+	check(buf);
 	return buf->capacity;
 }
 
 size_t buf_size(buf_t *buf){
-//	check(buf);
+	check(buf);
 	return buf->size;
 }
 
 ssize_t buf_fill(int fileDesc, buf_t *buf, size_t required){
-//	check(buf);
-
+	check(buf);
 	ssize_t retRead;
     while((retRead = read(fileDesc, buf->buffer + buf->size * sizeof(char), buf->capacity - buf->size)) > 0) {
     	buf->size += retRead;
@@ -72,7 +71,7 @@ ssize_t buf_fill(int fileDesc, buf_t *buf, size_t required){
 }
 
 ssize_t buf_flush(int fileDesc, buf_t *buf, size_t required){
-//	check(buf);
+	check(buf);
 
 	ssize_t writen = 0;
 	ssize_t retRead;
