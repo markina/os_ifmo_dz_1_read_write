@@ -7,7 +7,7 @@
 #include <sys/wait.h>
 #include <string.h>
 
- #define SIZE_BUF 8192
+#define SIZE_BUF 8192
 
 char DELIMITER = '\n';
 
@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
     nameProgram[strlen(argv[1])] = '\0';
 
     for(int i = 0; i < argc - 1; i++) {
-        strcpy(argv[i], argv[i + 1]);
+        argv[i] = argv[i+1];
     }
 
     char addition[SIZE_BUF]; 
