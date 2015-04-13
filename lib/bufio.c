@@ -93,3 +93,62 @@ ssize_t buf_flush(int fileDesc, buf_t *buf, size_t required){
     }	
 }
 
+ssize_t buf_getline(int fileDesc, buf_t *buf, char *dest){
+	check(buf);
+
+	if(buf->size != 0) {
+		for(size_t i = 0; i < buf->size; i++) {
+			if(buf->buffer[i] == '\n') {
+				memcpy(dest, buf->buffer, i);
+				memmove(buf->buffer, buf->buffer + i + 1, i);
+				buf->size -= i + 1;
+				return i + 1;
+			}
+		}
+	}
+	size_t firstNoCheckedIndex = buf->size;
+	ssize_t oldRetFill = -1;
+	ssize_t retFill;
+	while((retFill = buf_fill(fileDesc, buf, 1)) > 0 && retFill != oldRetFill) {
+		oldRetFill = retFill;
+		for(; firstNoCheckedIndex < buf->size; firstNoCheckedIndex++) {
+			if(buf->buffer[firstNoCheckedIndex] == '\n') {
+				memcpy(dest, buf->buffer, firstNoCheckedIndex);
+				if(buf->size > firstNoCheckedIndex + 1) {
+					memmove(buf->buffer, buf->buffer + firstNoCheckedIndex + 1, firstNoCheckedIndex);
+				}
+				buf->size -= firstNoCheckedIndex + 1;
+				return firstNoCheckedIndex + 1;
+			}
+		}
+	}
+	if(retFill == -1) {
+		return -1;
+	} else {
+		if(buf->size == 0) {
+			return 0;
+		}
+		memcpy(dest, buf->buffer, buf->size);
+		size_t length = buf->size;
+		buf->size = 0;
+		return length;
+	}
+}
+
+ssize_t buf_write(int fileDesc, buf_t *buf, char *src, size_t len){
+	check(buf);
+
+	if(buf->size + len <= buf->capacity) {
+		memcpy(buf->buffer + buf->size, src, len);
+		buf->size += len;
+		return len;
+	}
+	buf_flush(fileDesc, buf, buf->size);
+	if(buf->size + len <= buf->capacity) {
+		memcpy(buf->buffer + buf->size, src, len);
+		buf->size += len;
+		return len;	
+	}
+	return -1;
+}
+

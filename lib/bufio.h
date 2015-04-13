@@ -20,5 +20,7 @@ extern size_t buf_size(buf_t *buf);
 extern ssize_t buf_fill(int fileDesc, buf_t *buf, size_t required);
 extern ssize_t buf_flush(int fileDesc, buf_t *buf, size_t required);
 
+extern ssize_t buf_getline(int fileDesc, buf_t *buf, char *dest);
+extern ssize_t buf_write(int fileDesc, buf_t *buf, char *src, size_t len);
 
 #endif
