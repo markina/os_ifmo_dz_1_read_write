@@ -138,17 +138,20 @@ ssize_t buf_getline(int fileDesc, buf_t *buf, char *dest){
 ssize_t buf_write(int fileDesc, buf_t *buf, char *src, size_t len){
 	check(buf);
 
-	if(buf->size + len <= buf->capacity) {
-		memcpy(buf->buffer + buf->size, src, len);
-		buf->size += len;
-		return len;
+	while(len > 0) {
+		if(buf->size + len <= buf->capacity) {
+			memcpy(buf->buffer + buf->size, src, len);
+			buf->size += len;
+			return len;
+		} else {
+			memcpy(buf->buffer + buf->size, src, buf->capacity - buf->size);
+			memmove(src, src + buf->capacity - buf->size, len - (buf->capacity - buf->size));
+			len -= buf->capacity - buf->size;
+			buf->size = buf->capacity;
+			if(buf_flush(fileDesc, buf, 1) == -1) {
+				return -1;
+			}
+		}
 	}
-	buf_flush(fileDesc, buf, buf->size);
-	if(buf->size + len <= buf->capacity) {
-		memcpy(buf->buffer + buf->size, src, len);
-		buf->size += len;
-		return len;	
-	}
-	return -1;
 }
 
