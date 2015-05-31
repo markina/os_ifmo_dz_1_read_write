@@ -6,6 +6,7 @@ all:
 	cd filter && $(MAKE)
 	cd bufcat && $(MAKE)
 	cd buffilter && $(MAKE)
+	cd simplesh && $(MAKE)
 rm:
 	cd lib && $(MAKE) rm
 	cd cat && $(MAKE) rm
@@ -14,3 +15,5 @@ rm:
 	cd filter && $(MAKE) rm
 	cd bufcat && $(MAKE) rm
 	cd buffilter && $(MAKE) rm
+	cd simplesh && $(MAKE) rm
+

@@ -75,3 +75,56 @@ int spawn(const char * file, char * const argv []) {
         }
     }
 }
+
+#define ARG_SIZE 256
+
+execargs_t *execargs_new(int argc) {
+    execargs_t *execargs = malloc(sizeof(execargs_t));
+    if(execargs == NULL) {
+        perror("Calloc failed");
+        return NULL;
+    }
+    //printf("constructor allocated %i bytes", sizeof(execargs_t));
+    //execargs_t *execargs;
+    execargs->argc = argc;
+    execargs->argv = (char **) calloc(argc + 1, sizeof(char*));
+    //printf("constructor:\n"); 
+    // printf("argc: %i\n", argc);    
+    // for (int i; i <= argc + 1; i++)
+    // {
+    //     printf("%i\n", execargs->argv[i]);
+    // }
+    // printf("constructor end\n");
+    if(execargs->argv == NULL) {
+        free(execargs);
+        perror("Calloc failed");
+        return NULL;
+    } else {
+        return execargs;
+    }
+}
+
+void execargs_free(execargs_t *execargs) {
+    //for(int i = 0; i < execargs->argc; i++) {
+    //    free(execargs->argv[i]);
+        //null
+    //}    
+    //free(execargs->argv);
+    free(execargs->argv);
+    free(execargs);
+}
+
+int exec(execargs_t* execargs) {
+    char * file = execargs->argv[0];
+
+    //file[srtlen(execargs->argv[0])] = '\0';
+    if(spawn(file, execargs->argv) == -1) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
+int runpiped(execargs_t** programs, size_t n){
+    return -1;
+}
