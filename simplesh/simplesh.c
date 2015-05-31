@@ -19,31 +19,13 @@ int main(int argc, char *argv[]) {
     char line[SIZE_BUF];
     ssize_t retGetLine;
     while((retGetLine = buf_getline(STDIN_FILENO, buf, line)) > 0) {
-        //printf(line);
-        //printf("%d\n", strlen(line));
-        int cnt_space = 0;
-        for(int i = 0; i < retGetLine; i++) {
-            if(line[i] == ' ') {
-                cnt_space++;
-            }
-        }
-        printf("cnt_space = %d\n", cnt_space);
-        //write(STDOUT_FILENO, line, 3);
-        execargs_t * execargs = execargs_new(2);
-        //execargs->argv[0][0] = 'c';
-        // execargs->argv[0][1] = 'a';
-        // execargs->argv[0][2] = 't';
-        // execargs->argv[0][3] = '\0';
-        //memcpy(execargs->argv[0], line, 3);
-        //memcpy(execargs->argv[1], line + 4, 8);
-        //execargs->argv[2] = NULL;
-        //execargs->argv[0] = argv[1];
-        //execargs->argv[1] = argv[2];
-        //printf(execargs->argv[0]);
-        //printf(execargs->argv[1]);
-        //printf(execargs->argv[3]);
 
-        //exec(execargs);
+        execargs_t * execargs = execargs_new(2);
+        execargs->argv[0] = "cat";
+        execargs->argv[0][0] = 't';
+        execargs->argv[1] = "Makefile";
+        execargs->argv[2] = NULL;
+        exec(execargs);
         execargs_free(execargs);
         printf("-----------------------------\n");
     }

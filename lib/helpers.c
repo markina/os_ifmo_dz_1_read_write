@@ -88,6 +88,16 @@ execargs_t *execargs_new(int argc) {
     //execargs_t *execargs;
     execargs->argc = argc;
     execargs->argv = (char **) calloc(argc + 1, sizeof(char*));
+    if(execargs->argv == NULL) {
+        free(execargs);
+        perror("Calloc failed");
+        return NULL;
+    }
+
+    for(int i = 0; i < execargs->argc; i++) {
+        execargs->argv[i] = malloc(sizeof(char) * ARG_SIZE);
+    }
+
     //printf("constructor:\n"); 
     // printf("argc: %i\n", argc);    
     // for (int i; i <= argc + 1; i++)
@@ -95,21 +105,14 @@ execargs_t *execargs_new(int argc) {
     //     printf("%i\n", execargs->argv[i]);
     // }
     // printf("constructor end\n");
-    if(execargs->argv == NULL) {
-        free(execargs);
-        perror("Calloc failed");
-        return NULL;
-    } else {
-        return execargs;
-    }
+    
+    return execargs;
 }
 
 void execargs_free(execargs_t *execargs) {
     //for(int i = 0; i < execargs->argc; i++) {
-    //    free(execargs->argv[i]);
-        //null
-    //}    
-    //free(execargs->argv);
+        //free(execargs->argv[i]);
+    //}
     free(execargs->argv);
     free(execargs);
 }
