@@ -131,14 +131,16 @@ int exec(execargs_t* execargs) {
 
 int runpiped(execargs_t** programs, size_t n){
     
-    int pipefd[2];
-    if(pipe(pipefd) == -1) {
-        perror("Pipe failed");
-    }
     // printf("runpiped: pipefd[0] = %d\n", pipefd[0]);
     // printf("runpiped: pipefd[1] = %d\n", pipefd[1]);
-    int oldPipe = pipefd[1];
+    //int oldPipe = pipefd[1];
     for(int i = 0; i < n; i++) {
+
+        int pipefd[2];
+        if(pipe(pipefd) == -1) {
+            perror("Pipe failed");
+        }
+        int oldPipe;
 
         pid_t retFork = fork();
         if(retFork == -1) {
@@ -188,10 +190,10 @@ int runpiped(execargs_t** programs, size_t n){
                 //close(pipefd[1]);
                 
 
-                if(pipe(pipefd) == -1) {
-                    perror("Pipe failed");
-                    exit(-1);
-                }
+                // if(pipe(pipefd) == -1) {
+                //     perror("Pipe failed");
+                //     exit(-1);
+                // }
                 // printf("runpiped: oldPipe = %d\n", oldPipe);
                 // printf("runpiped: pipefd[0] = %d\n", pipefd[0]);
                 // printf("runpiped: pipefd[1] = %d\n", pipefd[1]);    
@@ -211,7 +213,8 @@ int runpiped(execargs_t** programs, size_t n){
             } else {
                 //perror("last iteration\n");
                 //close(pipefd[1]);
-                
+                close(pipefd[0]);
+                close(pipefd[1]);
                 dup2(oldPipe, STDIN_FILENO);
                 int retExec = exec(programs[i]);
                 if(retExec == -1) {

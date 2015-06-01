@@ -89,9 +89,9 @@ execargs_t * parseLine(char * line, size_t begin, size_t end) {
         current_lenword = 0;
     }
     execargs->argv[current_arg] = NULL;
-    // for(int i = 0; i < execargs->argc; i++) {
-    //     printf("parseLine: execargs->argv[%d] = '%s'\n", i, execargs->argv[i]);
-    // }
+        // for(int i = 0; i < execargs->argc; i++) {
+        //     printf("parseLine: execargs->argv[%d] = '%s'\n", i, execargs->argv[i]);
+        // }
     return execargs;
 }
 
