@@ -8,6 +8,8 @@
 #include <errno.h>
 #include <string.h>
 
+char DELIMITER = '\n';
+
 void check(buf_t *buf) {
 	#ifdef DEBUG
 	if(buf == NULL || buf->buffer == NULL) {
@@ -15,6 +17,10 @@ void check(buf_t *buf) {
 		abort();
 	} 
 	#endif
+}
+
+void set_delimiter(char del) {
+	DELIMITER = del;
 }
 
 buf_t *buf_new(size_t capacity){
@@ -98,7 +104,7 @@ ssize_t buf_getline(int fileDesc, buf_t *buf, char *dest){
 
 	if(buf->size != 0) {
 		for(size_t i = 0; i < buf->size; i++) {
-			if(buf->buffer[i] == '\n') {
+			if(buf->buffer[i] == DELIMITER) {
 				memcpy(dest, buf->buffer, i);
 				memmove(buf->buffer, buf->buffer + i + 1, i);
 				buf->size -= i + 1;
@@ -112,7 +118,7 @@ ssize_t buf_getline(int fileDesc, buf_t *buf, char *dest){
 	while((retFill = buf_fill(fileDesc, buf, 1)) > 0 && retFill != oldRetFill) {
 		oldRetFill = retFill;
 		for(; firstNoCheckedIndex < buf->size; firstNoCheckedIndex++) {
-			if(buf->buffer[firstNoCheckedIndex] == '\n') {
+			if(buf->buffer[firstNoCheckedIndex] == DELIMITER) {
 				memcpy(dest, buf->buffer, firstNoCheckedIndex);
 				if(buf->size > firstNoCheckedIndex + 1) {
 					memmove(buf->buffer, buf->buffer + firstNoCheckedIndex + 1, firstNoCheckedIndex);

@@ -129,5 +129,28 @@ int exec(execargs_t* execargs) {
 }
 
 int runpiped(execargs_t** programs, size_t n){
+    for(int i = 0; i < n; i++) {
+        pid_t retFork = fork();
+        if(retFork == -1) {
+            perror("Fork failed");
+        }
+        if(retFork) {
+            int status;            
+            pid_t retWait = waitpid (retFork , &status, 0);
+            if(retWait == -1) {
+                perror("Wait failed");
+            }
+            if(status != 0) {
+                return status;
+            }
+        } else {
+            int retExec = exec(programs[i]);
+            if(retExec == -1) {
+                perror("Error while execing");
+                exit(-1);
+            }
+        }
+    }
+
     return -1;
 }

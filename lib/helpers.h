@@ -20,5 +20,6 @@ extern execargs_t *execargs_new(int argc);
 extern void execargs_free(execargs_t *execargs);
 extern int exec(execargs_t* execargs);
 extern int runpiped(execargs_t** programs, size_t n);
+extern void set_delimiter(char del);
 
 #endif
