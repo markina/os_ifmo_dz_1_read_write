@@ -123,6 +123,9 @@ void runRequest(char * line, size_t lenLine) {
 }
 
 int main(int argc, char *argv[]) {
+
+    // TODO ^C
+    
     if(argc != 1) { 
         printf("USEGE: ./simplesh");
         return 0;
@@ -131,9 +134,12 @@ int main(int argc, char *argv[]) {
     buf_t * buf = buf_new(SIZE_BUF);
     char line[SIZE_BUF];
     ssize_t retGetLine;
+    write(STDOUT_FILENO, "$", 1);
     while((retGetLine = buf_getline(STDIN_FILENO, buf, line)) > 0) {
+        //printf("$\n");
         runRequest(line, retGetLine);
         //printf("-----------------------------\n");
+        write(STDOUT_FILENO, "$", 1);
     }
     buf_free(buf);
 	return 0;
