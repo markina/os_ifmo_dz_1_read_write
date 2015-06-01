@@ -42,30 +42,23 @@ int getCountWords(char * line, size_t begin, size_t end) {
 }
 
 execargs_t * parseLine(char * line, size_t begin, size_t end) {
-    // printf("psrseLine: line = '");
-    // for(size_t i = begin; i < end; i++) {
-    //     printf("%c", line[i]);
-    // }
-    // printf("'\n");
-
     int count_words = getCountWords(line, begin, end);
-    // printf("parseLine: count_words = %d\n", count_words);
     execargs_t * execargs = execargs_new(count_words + 1);
     
     int isLeadingSpace = 1;
     int current_arg = 0;
-    //int current_letter = 0;
     int current_lenword = 0;
     for(size_t i = begin; i < end; i++) {
         if(line[i] == ' ') {
             if(isLeadingSpace != 1) { 
-                execargs->argv[current_arg] = (char*) malloc(current_lenword * sizeof(char));
+                execargs->argv[current_arg] = (char*) malloc((current_lenword + 1) * sizeof(char));
                 //memcpy(execargs->argv[current_arg], line + i - current_lenword, current_lenword);
                 size_t k = 0;
                 for(size_t j = i - current_lenword; j < i; j++) {
                     execargs->argv[current_arg][k] = line[j];
                     k++;
                 }
+                execargs->argv[current_arg][current_lenword] = 0;
                 current_arg++;
                 current_lenword = 0;
             }
@@ -85,23 +78,20 @@ execargs_t * parseLine(char * line, size_t begin, size_t end) {
             execargs->argv[current_arg][k] = line[j];
             k++;
         }
+        execargs->argv[current_arg][current_lenword] = 0;
         current_arg++;
         current_lenword = 0;
     }
     execargs->argv[current_arg] = NULL;
-        // for(int i = 0; i < execargs->argc; i++) {
-        //     printf("parseLine: execargs->argv[%d] = '%s'\n", i, execargs->argv[i]);
-        // }
+    // for(int i = 0; i < execargs->argc; i++) {
+    //     printf("parseLine: execargs->argv[%d] = '%s'\n", i, execargs->argv[i]);
+    // }
     return execargs;
 }
 
 void runRequest(char * line, size_t lenLine) {
 
-    // printf("runRequest: line = '%s'\n", line);
-    // printf("runRequest: lenLine = %d\n", lenLine);
-
     int countProg = getCountProg(line, lenLine);
-    // printf("runRequest: countProg = %d\n", countProg);
 
     execargs_t ** execargses = malloc(countProg * sizeof(execargs_t));
     size_t begin = 0;
@@ -130,14 +120,6 @@ void runRequest(char * line, size_t lenLine) {
         perror("Runpiped failed");
         exit(-1);
     }
-
-////////
-    // for(int i = 0; i < countProg; i++) {
-    //     exec(execargses[i]);
-    //     sleep(1);
-    // }
-/////////
-        
 }
 
 int main(int argc, char *argv[]) {
@@ -151,7 +133,7 @@ int main(int argc, char *argv[]) {
     ssize_t retGetLine;
     while((retGetLine = buf_getline(STDIN_FILENO, buf, line)) > 0) {
         runRequest(line, retGetLine);
-        printf("-----------------------------\n");
+        //printf("-----------------------------\n");
     }
     buf_free(buf);
 	return 0;
