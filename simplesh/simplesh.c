@@ -42,14 +42,14 @@ int getCountWords(char * line, size_t begin, size_t end) {
 }
 
 execargs_t * parseLine(char * line, size_t begin, size_t end) {
-    printf("psrseLine: line = '");
-    for(size_t i = begin; i < end; i++) {
-        printf("%c", line[i]);
-    }
-    printf("'\n");
+    // printf("psrseLine: line = '");
+    // for(size_t i = begin; i < end; i++) {
+    //     printf("%c", line[i]);
+    // }
+    // printf("'\n");
 
     int count_words = getCountWords(line, begin, end);
-    printf("parseLine: count_words = %d\n", count_words);
+    // printf("parseLine: count_words = %d\n", count_words);
     execargs_t * execargs = execargs_new(count_words + 1);
     
     int isLeadingSpace = 1;
@@ -89,19 +89,19 @@ execargs_t * parseLine(char * line, size_t begin, size_t end) {
         current_lenword = 0;
     }
     execargs->argv[current_arg] = NULL;
-    for(int i = 0; i < execargs->argc; i++) {
-        printf("parseLine: execargs->argv[%d] = '%s'\n", i, execargs->argv[i]);
-    }
+    // for(int i = 0; i < execargs->argc; i++) {
+    //     printf("parseLine: execargs->argv[%d] = '%s'\n", i, execargs->argv[i]);
+    // }
     return execargs;
 }
 
 void runRequest(char * line, size_t lenLine) {
 
-    printf("runRequest: line = '%s'\n", line);
-    printf("runRequest: lenLine = %d\n", lenLine);
+    // printf("runRequest: line = '%s'\n", line);
+    // printf("runRequest: lenLine = %d\n", lenLine);
 
     int countProg = getCountProg(line, lenLine);
-    printf("runRequest: countProg = %d\n", countProg);
+    // printf("runRequest: countProg = %d\n", countProg);
 
     execargs_t ** execargses = malloc(countProg * sizeof(execargs_t));
     size_t begin = 0;
@@ -119,11 +119,17 @@ void runRequest(char * line, size_t lenLine) {
             begin = i + 1;
         }
     }
-    runpiped(execargses, countProg);
+    int retRunpiped = runpiped(execargses, countProg);
+
     for(int i = 0; i < countProg; i++) {
         execargs_free(execargses[i]);
     }
     free(execargses);
+
+    if(retRunpiped == -1) {
+        perror("Runpiped failed");
+        exit(-1);
+    }
 
 ////////
     // for(int i = 0; i < countProg; i++) {

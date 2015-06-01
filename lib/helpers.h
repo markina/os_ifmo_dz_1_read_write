@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 extern ssize_t read_(int fileDesc, void *buf, size_t count);
 extern ssize_t write_(int fileDesc, const void *buf, size_t count);

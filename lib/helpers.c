@@ -118,6 +118,7 @@ void execargs_free(execargs_t *execargs) {
 }
 
 int exec(execargs_t* execargs) {
+    //perror("exec: \n");
     char * file = execargs->argv[0];
 
     //file[srtlen(execargs->argv[0])] = '\0';
@@ -129,28 +130,101 @@ int exec(execargs_t* execargs) {
 }
 
 int runpiped(execargs_t** programs, size_t n){
+    
+    int pipefd[2];
+    if(pipe(pipefd) == -1) {
+        perror("Pipe failed");
+    }
+    // printf("runpiped: pipefd[0] = %d\n", pipefd[0]);
+    // printf("runpiped: pipefd[1] = %d\n", pipefd[1]);
+    int oldPipe = pipefd[1];
     for(int i = 0; i < n; i++) {
+
         pid_t retFork = fork();
         if(retFork == -1) {
             perror("Fork failed");
         }
         if(retFork) {
-            int status;            
+            close(pipefd[1]);
+            int status;        
+            //printf("We wait my child\n");    
             pid_t retWait = waitpid (retFork , &status, 0);
             if(retWait == -1) {
                 perror("Wait failed");
             }
             if(status != 0) {
+                return -1;
+            }
+            oldPipe = pipefd[0];
+            if(i == n - 1) {
+                close(oldPipe);
                 return status;
             }
         } else {
-            int retExec = exec(programs[i]);
-            if(retExec == -1) {
-                perror("Error while execing");
-                exit(-1);
+            //printf("I'm child! :)\n");
+            if(n == 1) {
+                close(pipefd[0]);
+                close(pipefd[1]);
+                int retExec = exec(programs[i]);
+                if(retExec == -1) {
+                    perror("Error while execing");
+                    exit(-1);
+                }
+                _exit(EXIT_SUCCESS);
             }
+            if(i == 0) {
+                // printf("first iteration\n");
+                close(pipefd[0]);
+                dup2(pipefd[1], STDOUT_FILENO);
+                int retExec = exec(programs[i]);
+                if(retExec == -1) {
+                    perror("Error while execing");
+                    exit(-1);
+                }
+                close(pipefd[1]);
+            } else if (i != n - 1) {
+                //perror("iteration\n");
+                //oldPipe = pipefd[0];
+                //close(pipefd[1]);
+                
+
+                if(pipe(pipefd) == -1) {
+                    perror("Pipe failed");
+                    exit(-1);
+                }
+                // printf("runpiped: oldPipe = %d\n", oldPipe);
+                // printf("runpiped: pipefd[0] = %d\n", pipefd[0]);
+                // printf("runpiped: pipefd[1] = %d\n", pipefd[1]);    
+                
+                close(pipefd[0]);
+                dup2(oldPipe, STDIN_FILENO);
+                dup2(pipefd[1], STDOUT_FILENO);
+                int retExec = exec(programs[i]);
+                if(retExec == -1) {
+                    perror("Error while execing");
+                    exit(-1);
+                }
+                close(oldPipe);
+                close(pipefd[1]);
+                //close(oldPipe);
+
+            } else {
+                //perror("last iteration\n");
+                //close(pipefd[1]);
+                
+                dup2(oldPipe, STDIN_FILENO);
+                int retExec = exec(programs[i]);
+                if(retExec == -1) {
+                    perror("Error while execing");
+                    exit(-1);
+                }
+                close(oldPipe);
+                dup2(STDIN_FILENO, STDIN_FILENO);
+                dup2(STDOUT_FILENO, STDOUT_FILENO);
+            }
+            _exit(EXIT_SUCCESS);
         }
     }
 
-    return -1;
+    return 0;
 }
